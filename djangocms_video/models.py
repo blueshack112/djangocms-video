@@ -57,12 +57,12 @@ class VideoPlayer(CMSPlugin, CMSPluginOverridenPTR, TranslatablePluginModel):
     Renders either an Iframe when ``link`` is provided or the HTML5 <video> tag
     """
     translations = TranslatedFields(
-        label_new=models.CharField(
+        label=models.CharField(
             verbose_name=_('Label'),
             blank=True,
             max_length=255,
         ),
-        embed_link_new=models.CharField(
+        embed_link=models.CharField(
             verbose_name=_('Embed link'),
             blank=True,
             max_length=255,
@@ -72,14 +72,14 @@ class VideoPlayer(CMSPlugin, CMSPluginOverridenPTR, TranslatablePluginModel):
                 'files by adding nested "Source" plugins.'
             ),
         ),
-        parameters_new=AttributesField(
+        parameters=AttributesField(
             verbose_name=_('Parameters'),
             blank=True,
             help_text=_(
                 'Parameters are appended to the video link if provided.'
             ),
         ),
-        poster_new=FilerImageField(
+        poster=FilerImageField(
             verbose_name=_('Poster'),
             blank=True,
             null=True,
@@ -94,35 +94,7 @@ class VideoPlayer(CMSPlugin, CMSPluginOverridenPTR, TranslatablePluginModel):
         default=get_templates()[0][0],
         max_length=255,
     )
-    label = models.CharField(
-        verbose_name=_('Label'),
-        blank=True,
-        max_length=255,
-    )
-    embed_link = models.CharField(
-        verbose_name=_('Embed link'),
-        blank=True,
-        max_length=255,
-        help_text=_(
-            'Use this field to embed videos from external services '
-            'such as YouTube, Vimeo or others. Leave it blank to upload video '
-            'files by adding nested "Source" plugins.'
-        ),
-    )
-    parameters = AttributesField(
-        verbose_name=_('Parameters'),
-        blank=True,
-        help_text=_(
-            'Parameters are appended to the video link if provided.'
-        ),
-    )
-    poster = FilerImageField(
-        verbose_name=_('Poster'),
-        blank=True,
-        null=True,
-        on_delete=models.SET_NULL,
-        related_name='+',
-    )
+
     attributes = AttributesField(
         verbose_name=_('Attributes'),
         blank=True,
