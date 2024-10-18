@@ -14,6 +14,8 @@ from django.utils.translation import gettext_lazy as _
 from djangocms_attributes_field.fields import AttributesField
 from filer.fields.file import FilerFileField
 from filer.fields.image import FilerImageField
+from parler.models import TranslatedFields
+from djangocms_video.utils import TranslatablePluginModel
 
 
 # The mp4 file format is supported by all major browsers
@@ -37,10 +39,55 @@ def get_templates():
     )
 
 
-class VideoPlayer(CMSPlugin):
+class CMSPluginOverridenPTR:
+    # Add an app namespace to related_name to avoid field name clashes
+    # with any other plugins that have a field with the same name as the
+    # lowercase of the class name of this model.
+    # https://github.com/divio/django-cms/issues/5030
+    cmsplugin_ptr = models.OneToOneField(
+        CMSPlugin,
+        related_name='%(app_label)s_%(class)s',
+        parent_link=True,
+        on_delete=models.CASCADE,
+    )
+
+
+class VideoPlayer(CMSPlugin, CMSPluginOverridenPTR, TranslatablePluginModel):
     """
     Renders either an Iframe when ``link`` is provided or the HTML5 <video> tag
     """
+    translations = TranslatedFields(
+        label_new=models.CharField(
+            verbose_name=_('Label'),
+            blank=True,
+            max_length=255,
+        ),
+        embed_link_new=models.CharField(
+            verbose_name=_('Embed link'),
+            blank=True,
+            max_length=255,
+            help_text=_(
+                'Use this field to embed videos from external services '
+                'such as YouTube, Vimeo or others. Leave it blank to upload video '
+                'files by adding nested "Source" plugins.'
+            ),
+        ),
+        parameters_new=AttributesField(
+            verbose_name=_('Parameters'),
+            blank=True,
+            help_text=_(
+                'Parameters are appended to the video link if provided.'
+            ),
+        ),
+        poster_new=FilerImageField(
+            verbose_name=_('Poster'),
+            blank=True,
+            null=True,
+            on_delete=models.SET_NULL,
+            related_name='+',
+        ),
+    )
+
     template = models.CharField(
         verbose_name=_('Template'),
         choices=get_templates(),
@@ -81,28 +128,23 @@ class VideoPlayer(CMSPlugin):
         blank=True,
     )
 
-    # Add an app namespace to related_name to avoid field name clashes
-    # with any other plugins that have a field with the same name as the
-    # lowercase of the class name of this model.
-    # https://github.com/divio/django-cms/issues/5030
-    cmsplugin_ptr = models.OneToOneField(
-        CMSPlugin,
-        related_name='%(app_label)s_%(class)s',
-        parent_link=True,
-        on_delete=models.CASCADE,
-    )
-
     def __str__(self):
-        return self.label or self.embed_link or str(self.pk)
+        if self.has_translation():
+            if self.label:
+                return self.label
+            elif self.embed_link:
+                return self.embed_link
+        return str(self.pk)
 
     def copy_relations(self, oldinstance):
         # Because we have a ForeignKey, it's required to copy over
         # the reference from the instance to the new plugin.
         self.poster = oldinstance.poster
+        super().copy_relations(oldinstance)
 
     @property
     def embed_link_with_parameters(self):
-        if not self.embed_link:
+        if not self.has_translation() or not self.embed_link:
             return ''
         if not self.parameters:
             return self.embed_link

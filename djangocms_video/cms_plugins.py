@@ -1,11 +1,12 @@
 from cms.plugin_base import CMSPluginBase
 from cms.plugin_pool import plugin_pool
 from django.utils.translation import gettext_lazy as _
+from djangocms_video.utils import TranslatablePlugin
 
 from . import forms, models
 
 
-class VideoPlayerPlugin(CMSPluginBase):
+class VideoPlayerPlugin(TranslatablePlugin):
     model = models.VideoPlayer
     name = _('Video player')
     text_enabled = True

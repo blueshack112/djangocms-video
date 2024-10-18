@@ -2,6 +2,7 @@ import re
 
 from django import forms
 from django.conf import settings
+from parler.forms import TranslatableModelForm
 
 from . import models
 
@@ -11,7 +12,7 @@ YOUTUBE_VIDEO_ID_RE = re.compile(r'(?:[?&]v=|/embed/|/1/|/v/|https?://(?:www\.)?
 DEFAULT_YOUTUBE_EMBED_URL = '//www.youtube.com/embed/{}'
 
 
-class VideoPlayerPluginForm(forms.ModelForm):
+class VideoPlayerPluginForm(TranslatableModelForm):
     class Meta:
         model = models.VideoPlayer
         exclude = []
