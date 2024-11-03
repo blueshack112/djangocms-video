@@ -112,7 +112,8 @@ class VideoPlayer(CMSPlugin, CMSPluginOverridenPTR, TranslatablePluginModel):
         # Because we have a ForeignKey, it's required to copy over
         # the reference from the instance to the new plugin.
         self.poster = oldinstance.poster
-        super().copy_relations(oldinstance)
+        TranslatablePluginModel.copy_relations(self, oldinstance)
+
 
     @property
     def embed_link_with_parameters(self):

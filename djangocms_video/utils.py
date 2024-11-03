@@ -31,7 +31,6 @@ class TranslatablePluginModel(TranslatableModel):
         abstract = True
 
     def copy_relations(self, old_instance):
-        super().copy_relations(old_instance)
         if self.pk:
             for translation in old_instance.translations.all():
                 translation.pk = None
