@@ -117,10 +117,11 @@ class VideoPlayer(CMSPlugin, CMSPluginOverridenPTR, TranslatablePluginModel):
 
     @property
     def embed_link_with_parameters(self):
-        if not self.has_translation() or not self.embed_link:
+        if not self._get_any_translated_model():
             return ''
-        if not self.parameters:
-            return self.embed_link
+        embed_link = self.embed_link or ''
+        if not embed_link or not self.parameters:
+            return embed_link
         return self._append_url_parameters(self.embed_link, self.parameters)
 
     def _append_url_parameters(self, url, params):
